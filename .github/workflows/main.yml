@@ -1,10 +1,30 @@
 name: Security Scan
 on: [workflow_dispatch]
+permissions:
+  contents: write  # Required to commit the results file
+
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
       - name: Run Trivy Scan
         uses: aquasecurity/trivy-action@main
         with:
-          target: https://www.reddit.com
+          target: https://www.reddit.com/
+          
+      - name: Generate Report
+        run: |
+          trivy --format table http://your-own-site.com > vulnerability-report.txt
+          
+      - name: Commit Results
+        uses: EndBug/add-and-commit@v9
+        with:
+          add: vulnerability-report.txt
+          message: "Add security scan results"
+          author_name: GitHub Actions
+          author_email: actions@github.com
+          committer_name: GitHub Actions
+          committer_email: actions@github.com
