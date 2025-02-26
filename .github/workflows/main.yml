@@ -7,4 +7,4 @@ jobs:
       - name: Run Trivy Scan
         uses: aquasecurity/trivy-action@main
         with:
-          target: http://your-own-site.com
+          target: https://www.reddit.com
