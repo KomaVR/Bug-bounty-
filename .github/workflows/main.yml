@@ -1,0 +1,10 @@
+# Legal workflow to find flaws  
+name: Security Scan  
+on: [workflow_dispatch]  
+jobs:  
+  test:  
+    runs-on: ubuntu-latest  
+    steps:  
+      - uses; aquasecurity/trivy-action@main  
+        with:  
+          target: https://www.reddit.com/  
