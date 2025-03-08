@@ -9,13 +9,11 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Install Python Dependencies and Fix urllib3
+      - name: Install Python Dependencies
         run: |
           python3 -m pip install --upgrade pip
-          pip install zapcli
-          pip uninstall urllib3 -y
-          pip install urllib3==1.26.15
-          zap-cli --version
+          pip install "zapcli" "requests==2.20.1" "urllib3<1.25"
+          zap-cli -h  # Show help since --version doesn't exist
 
       - name: Start OWASP ZAP (Docker)
         run: |
@@ -24,7 +22,6 @@ jobs:
 
       - name: Run ZAP Quick Scan
         run: |
-          # Replace 'https://www.reddit.com' with your target website (ensure you have authorization to scan)
           zap-cli -p 8080 quick-scan --self-contained https://www.reddit.com
 
       - name: Shutdown OWASP ZAP
