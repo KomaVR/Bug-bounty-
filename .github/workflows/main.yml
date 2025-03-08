@@ -16,14 +16,14 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Run Trivy Scan
-        uses: aquasecurity/trivy-action@main
+        uses: aquasecurity/trivy-action@0.14.0
         with:
-          target: https://redit.com
-          exit-code: '0'    # Continue even if vulnerabilities found
+          image-ref: "nginx:latest"  # Example: Replace with an actual container image
+          exit-code: '0'    
 
       - name: Save Report
         run: |
-          trivy --format table https://reddit.com > report.txt
+          trivy fs . > report.txt
           date >> report.txt  # Append timestamp
 
       - uses: EndBug/add-and-commit@v9
