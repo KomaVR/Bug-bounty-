@@ -9,23 +9,25 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Install OWASP ZAP CLI
+      - name: Install Python Dependencies
         run: |
-          wget https://github.com/Grunny/ZAP-CLI/releases/download/2.9.0/zap-cli-linux -O zap-cli
-          chmod +x zap-cli
-          sudo mv zap-cli /usr/local/bin/zap-cli
+          python3 -m pip install --upgrade pip
+          pip install zapcli
 
-      - name: Start ZAP
-        run: |
-          # Start ZAP in daemon mode
-          zap.sh -daemon -config api.disablekey=true
-          sleep 15  # Give ZAP some time to start
+      - name: Verify zap-cli Installation
+        run: zap-cli --version
 
-      - name: Run ZAP Scan
+      - name: Start OWASP ZAP (Docker)
         run: |
-          # Replace 'https://www.reddit.com/' with your target URL
-          zap-cli quick-scan --self-contained https://www.reddit.com/
+          docker run -d --name zap -p 8080:8080 owasp/zap2docker-stable zap.sh -daemon -host 0.0.0.0 -port 8080 -config api.disablekey=true
+          sleep 15  # Wait for ZAP to start
 
-      - name: Shutdown ZAP
+      - name: Run ZAP Quick Scan
         run: |
-          zap-cli shutdown
+          # Replace 'https://www.reddit.com' with your target website
+          zap-cli -p 8080 quick-scan --self-contained https://www.reddit.com
+
+      - name: Shutdown OWASP ZAP
+        run: |
+          docker stop zap
+          docker rm zap
