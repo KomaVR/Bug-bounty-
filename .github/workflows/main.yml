@@ -19,11 +19,12 @@ jobs:
       - name: Install Trivy
         run: |
           curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh
-          sudo mv ./bin/trivy /usr/local/bin/
+          export PATH=$PATH:$(pwd)/bin
           trivy --version
 
       - name: Run Trivy File System Scan
         run: |
+          export PATH=$PATH:$(pwd)/bin
           trivy fs . > report.txt
           date >> report.txt  # Append timestamp
 
