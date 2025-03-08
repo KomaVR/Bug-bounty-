@@ -13,20 +13,27 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 4     # Must complete before next run
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
       - name: Run Trivy Scan
-        uses: aquasecurity/trivy-action@0.14.0
+        uses: aquasecurity/trivy-action@0.14.0  # Use latest stable version
         with:
-          image-ref: "nginx:latest"  # Example: Replace with an actual container image
+          image-ref: "nginx:latest"  # Example: Replace with a valid container image
           exit-code: '0'    
 
-      - name: Save Report
+      - name: Install Trivy Manually (Fallback)
+        run: |
+          curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh
+          trivy --version
+
+      - name: Run Trivy File System Scan
         run: |
           trivy fs . > report.txt
           date >> report.txt  # Append timestamp
 
-      - uses: EndBug/add-and-commit@v9
+      - name: Commit and Push Report
+        uses: EndBug/add-and-commit@v9
         with:
           add: report.txt
           message: "Auto Security Report - $(date +'%Y-%m-%d %H:%M')"
