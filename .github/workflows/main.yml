@@ -1,35 +1,31 @@
-name: Security Scan
+name: Web Vulnerability Scan
 on:
-  schedule:
-    - cron: '*/5 * * * *'  # Every 5 minutes
-  workflow_dispatch:       # Manual trigger
-
-permissions:
-  contents: write
-  actions: read
+  workflow_dispatch:
 
 jobs:
-  test:
+  zap_scan:
     runs-on: ubuntu-latest
-    timeout-minutes: 4  # Must complete before next run
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Install Trivy
+      - name: Install OWASP ZAP CLI
         run: |
-          curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh
-          export PATH=$PATH:$(pwd)/bin
-          trivy --version
+          wget https://github.com/Grunny/ZAP-CLI/releases/download/2.9.0/zap-cli-linux -O zap-cli
+          chmod +x zap-cli
+          sudo mv zap-cli /usr/local/bin/zap-cli
 
-      - name: Run Trivy File System Scan
+      - name: Start ZAP
         run: |
-          export PATH=$PATH:$(pwd)/bin
-          trivy fs . > report.txt
-          date >> report.txt  # Append timestamp
+          # Start ZAP in daemon mode
+          zap.sh -daemon -config api.disablekey=true
+          sleep 15  # Give ZAP some time to start
 
-      - name: Commit and Push Report
-        uses: EndBug/add-and-commit@v9
-        with:
-          add: report.txt
-          message: "Auto Security Report - $(date +'%Y-%m-%d %H:%M')"
+      - name: Run ZAP Scan
+        run: |
+          # Replace 'https://www.reddit.com/' with your target URL
+          zap-cli quick-scan --self-contained https://www.reddit.com/
+
+      - name: Shutdown ZAP
+        run: |
+          zap-cli shutdown
