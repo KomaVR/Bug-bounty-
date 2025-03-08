@@ -11,16 +11,16 @@ permissions:
 jobs:
   test:
     runs-on: ubuntu-latest
-    timeout-minutes: 4     # Must complete before next run
+    timeout-minutes: 4  # Must complete before next run
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Run Trivy Scan
-        uses: aquasecurity/trivy-action@0.14.0  # Use latest stable version
+      - name: Run Trivy Scan (Container)
+        uses: aquasecurity/trivy-action@0.14.0  # Use a stable, released version
         with:
-          image-ref: "nginx:latest"  # Example: Replace with a valid container image
-          exit-code: '0'    
+          image-ref: "nginx:latest"  # Replace with your target container image
+          exit-code: '0'
 
       - name: Install Trivy Manually (Fallback)
         run: |
